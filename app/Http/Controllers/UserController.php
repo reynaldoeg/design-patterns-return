@@ -2,10 +2,24 @@
 
 namespace App\Http\Controllers;
 
+use App\Repositories\UserRepository;
+use App\User;
 use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
+    private $userRepository;
+
+    /**
+     * UserController constructor.
+     * @param $userRepository
+     */
+    public function __construct(UserRepository $userRepository)
+    {
+        $this->userRepository = $userRepository;
+    }
+
+
     /**
      * Display a listing of the resource.
      *
@@ -13,19 +27,9 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = User::with([cars.tickets])->get();
+        $users = $this->userRepository->all();
 
         return response()->json($users);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
     }
 
     /**
@@ -36,7 +40,8 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        $user = User::create($request->all());
+        $user = new User($request->all());
+        $user = $this->userRepository->save($user);
 
         return response()->json($user);
     }
@@ -47,9 +52,9 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(int $id)
     {
-        $user = User::with([cars.tickets])->find($id);
+        $user = $this->userRepository->get($id);
 
         return response()->json($user);
     }
@@ -75,7 +80,7 @@ class UserController extends Controller
     public function update(Request $request, User $user)
     {
         $user->fill($request->all());
-        $user->save();
+        $user = $this->userRepository->save($user);
 
         return response()->json($user);
     }
@@ -86,16 +91,19 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(User $user)
     {
-        $user = User::find($id);
-        $user->delete();
+        $user = $this->userRepository->delete($user);
 
         return response()->json($user);
     }
 
     public function getWithSameFirstAndLastName()
     {
+        $name = request()->get('name');
 
+        $user = $this->userRepository->getWithSameFirstAndLastName($name);
+
+        return response()->json($user);
     }
 }
