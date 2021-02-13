@@ -6,39 +6,19 @@ namespace App\Repositories;
 
 use App\User;
 
-class UserRepository
+class UserRepository extends BaseRepository
 {
-    private $model;
+    const RELATIONS = [
+        'cars.tickets'
+    ];
 
     /**
      * UserRepository constructor.
      * @param $model
      */
-    public function __construct()
+    public function __construct(User $user)
     {
-        $this->model = new User();
-    }
-
-    public function all()
-    {
-        return $this->model->with([cars.tickets])->get();
-    }
-
-    public function get(int $id)
-    {
-        return $this->model->with([cars.tickets])->find($id);
-    }
-
-    public function save(User $user)
-    {
-        $user->save();
-        return $user;
-    }
-
-    public function delete(User $user)
-    {
-        $user->delete();
-        return $user;
+        parent::__construct($user, self::RELATIONS);
     }
 
     public function getWithSameFirstAndLastName(string $name)
